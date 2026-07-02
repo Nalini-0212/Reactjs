@@ -3,7 +3,7 @@ pipeline{
     environment {
         DEV_REPO = "naliniselv/react-app-dev"
         PROD_REPO = "naliniselv/react-app-prod"
-        EC2_IP = "3.109.216.184"
+        EC2_IP = "54.152.142.48"
         CONTAINER_NAME = "react-app-container"
     }
     stages{
