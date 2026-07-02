@@ -1,0 +1,10 @@
+.git
+.gitignore
+Jenkinsfile
+README.md
+scripts/
+docker-compose.yml
+Dockerfile
+*.swp
+*.log
+*.tmp
