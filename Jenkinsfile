@@ -9,7 +9,7 @@ pipeline{
     stages{
         stage('checkout to repository'){
             steps{
-                git branch: "${env.BRANCH_NAME}", url: 'https://github.com/sriram-R-krishnan/devops-build.git'
+                git branch: "${env.BRANCH_NAME}", url: 'https://github.com/Nalini-0212/Reactjs.git'
             }
         }
         stage('build docker image'){
