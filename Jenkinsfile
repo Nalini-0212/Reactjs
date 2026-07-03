@@ -23,7 +23,7 @@ pipeline{
                     branch 'dev'
                 }
                 steps{
-                    echo "Building docker image for dev branch and pushing to docker hub"
+                    echo "Building docker image for dev branch and pushing to docker hub..."
                     withCredentials([usernamePassword(credentialsId: 'dockerhubcred', usernameVariable:'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]){
                         sh """
                         echo "Logging into Docker Hub"
