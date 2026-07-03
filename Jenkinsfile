@@ -56,7 +56,7 @@ pipeline{
                 echo "Deploying to EC2 server"
                 sshagent(['ec2-ssh-key']){
                     sh """
-                    ssh -o StringHostkeyChecking=no ubuntu@${env.EC2_IP} '
+                    ssh -o StrictHostKeyChecking=no ubuntu@${env.EC2_IP} '
                     docker pull ${env.PROD_REPO}:${BUILD_NUMBER}
                     docker stop ${env.CONTAINER_NAME}
                     docker rm ${env.CONTAINER_NAME}
