@@ -29,7 +29,9 @@ pipeline{
                         echo "Logging into Docker Hub"
                         echo "${DOCKERHUB_PASSWORD}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
                         docker tag react-app:${BUILD_NUMBER} ${env.DEV_REPO}:${BUILD_NUMBER}
+                        docker tag react-app:${BUILD_NUMBER} ${env.DEV_REPO}:latest
                         docker push ${env.DEV_REPO}:${BUILD_NUMBER}
+                        docker push ${env.DEV_REPO}:latest
                     """
                 }
 
@@ -46,33 +48,36 @@ pipeline{
                         echo "Logging into Docker Hub"
                         echo "${DOCKERHUB_PASSWORD}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
                         docker tag react-app:${BUILD_NUMBER} ${env.PROD_REPO}:${BUILD_NUMBER}
+                        docker tag react-app:${BUILD_NUMBER} ${env.PROD_REPO}:latest
                         docker push ${env.PROD_REPO}:${BUILD_NUMBER}
+                        docker push ${env.PROD_REPO}:latest
                     """
                 }
             }
         }
         stage('deploy to EC2 Server'){
-            steps{
                 when{
                     branch 'main'
                 }
-                echo "Deploying to EC2 server"
-                sshagent(['ec2-ssh-key']){
-                    withCredentials([usernamePassword(credentialsId: 'dockerhubcred', usernameVariable:'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]){
-                    sh """
-                    ssh -o StrictHostKeyChecking=no ubuntu@${env.EC2_IP} '
-                    echo "Logging into Docker Hub"
-                    echo "${DOCKERHUB_PASSWORD}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
-                    ssh -o StrictHostKeyChecking=no ubuntu@${env.EC2_IP} '
-                    docker pull ${env.PROD_REPO}:${BUILD_NUMBER}
-                    docker stop ${env.CONTAINER_NAME}
-                    docker rm ${env.CONTAINER_NAME}
-                    docker run -d --name ${env.CONTAINER_NAME} -p 80:80 ${env.PROD_REPO}:${BUILD_NUMBER}
-                    '
-                    """
+                steps{
+                    echo "Deploying to EC2 server"
+                    sshagent(['ec2-ssh-key']){
+                        withCredentials([usernamePassword(credentialsId: 'dockerhubcred', usernameVariable:'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]){
+                        sh """
+                        ssh -o StrictHostKeyChecking=no ubuntu@${env.EC2_IP} '
+                        echo "Logging into Docker Hub"
+                        echo "${DOCKERHUB_PASSWORD}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
+                        docker pull ${env.PROD_REPO}:latest
+                        docker stop ${env.CONTAINER_NAME} || true
+                        docker rm ${env.CONTAINER_NAME} || true
+                        docker run -d --name ${env.CONTAINER_NAME} -p 80:80 ${env.PROD_REPO}:latest
+                        '
+                       """
+                    }
                 }
             }
         }
+
     }
 
 }
