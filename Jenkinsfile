@@ -53,9 +53,16 @@ pipeline{
         }
         stage('deploy to EC2 Server'){
             steps{
+                when{
+                    branch 'main'
+                }
                 echo "Deploying to EC2 server"
                 sshagent(['ec2-ssh-key']){
+                    withCredentials([usernamePassword(credentialsId: 'dockerhubcred', usernameVariable:'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]){
                     sh """
+                    ssh -o StrictHostKeyChecking=no ubuntu@${env.EC2_IP} '
+                    echo "Logging into Docker Hub"
+                    echo "${DOCKERHUB_PASSWORD}" | docker login -u "${DOCKERHUB_USERNAME}" --password-stdin
                     ssh -o StrictHostKeyChecking=no ubuntu@${env.EC2_IP} '
                     docker pull ${env.PROD_REPO}:${BUILD_NUMBER}
                     docker stop ${env.CONTAINER_NAME}
